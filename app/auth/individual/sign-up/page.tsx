@@ -68,11 +68,11 @@ export default function IndividualSignUpPage() {
     if (!isFormValid) return;
     try {
       const result = await authApi.register(name, email, password);
-      if (result.token) {
+      if (result && result.token) {
         setToken(result.token);
         if (result.user) setUser(result.user);
       }
-    } catch {}
+    } catch (e) { console.error(e); }
     router.push('/dashboard');
   };
 
