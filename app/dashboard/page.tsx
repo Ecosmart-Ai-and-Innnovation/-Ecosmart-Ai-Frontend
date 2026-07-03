@@ -88,7 +88,7 @@ export default function EcoSmartDashboardPage() {
     };
 
     fetchDashboard(savedToken);
-  }, []);
+  }, [hydrated]);
 
   const handleQuickAction = async (actionId: string) => {
     try {
