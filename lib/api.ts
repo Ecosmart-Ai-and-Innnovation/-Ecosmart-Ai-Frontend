@@ -1,6 +1,6 @@
 import { getToken } from './auth';
 
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://ecosmart-ai-backend.onrender.com/api';
 
 async function request<T>(endpoint: string, options?: RequestInit): Promise<T> {
   const token = getToken();
