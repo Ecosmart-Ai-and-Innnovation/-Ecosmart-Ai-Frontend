@@ -110,6 +110,7 @@ export default function BuildProfileStep1() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid) {
+      localStorage.setItem("recycler_basic", JSON.stringify({ operationSize, primaryName, description, whatsapp }));
       router.push('/auth/recycler/build-profile/location');
     }
   };

@@ -133,3 +133,15 @@ export const dashboardApi = {
   get: () =>
     request<DashboardData>('/dashboard'),
 };
+
+// ── Recycler Profile API ──
+export const recyclerProfileApi = {
+  save: (data: Record<string, any>) =>
+    request<{ profileComplete: boolean }>('/recycler-profile/save', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  get: () =>
+    request<Record<string, any>>('/recycler-profile/profile'),
+};

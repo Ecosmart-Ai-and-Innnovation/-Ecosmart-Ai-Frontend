@@ -110,6 +110,7 @@ export default function ProfileCategoriesStep() {
     if (!isFormValid) {
       setTouched({ materials: true, methods: true, quantity: true });
     } else {
+      localStorage.setItem("recycler_categories", JSON.stringify({ selectedMaterials, selectedMethods, sameDayPickup, scheduledBookings, minQuantity }));
       router.push('/auth/recycler/build-profile/pricing');
     }
   };

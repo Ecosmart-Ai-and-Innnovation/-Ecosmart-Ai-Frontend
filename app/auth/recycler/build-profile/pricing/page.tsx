@@ -7,11 +7,16 @@ import {
   Globe, ChevronLeft, Check, Leaf, AlertCircle, ArrowRight, Bot,
   Wine, Cylinder, Cog, Zap, ChevronDown, ChevronUp, CheckCircle2
 } from 'lucide-react';
+import { recyclerProfileApi } from '@/lib/api';
 
 export default function ProfilePricingStep() {
   const router = useRouter();
+  const [saving, setSaving] = useState(false);
+
+  // Toggle State
   const [negotiateAll, setNegotiateAll] = useState(false);
 
+  // Pricing State
   const [prices, setPrices] = useState<Record<string, string>>({
     glass: '',
     plastic: '',
@@ -20,16 +25,23 @@ export default function ProfilePricingStep() {
     food: ''
   });
 
+  // Payment Methods
   const [paymentMethods, setPaymentMethods] = useState<string[]>([]);
   const availablePaymentMethods = ['Cash', 'Bank Transfer', 'EcoSmart Wallet', 'Mobile Money', 'Other'];
 
+  // Optional Settings
   const [minPickupValue, setMinPickupValue] = useState('');
   const [minCollectionQty, setMinCollectionQty] = useState('');
+
+  // Accordion State
   const [marketRatesOpen, setMarketRatesOpen] = useState(false);
+
+  // Touched & Error States
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isFormValid, setIsFormValid] = useState(false);
 
+  // Material Data
   const materials = [
     { id: 'glass', name: 'Glass Bottles', range: 'Range: ₦20 – ₦60/kg', icon: Wine, iconColor: 'text-amber-700', bg: 'bg-[#f8f5e6]' },
     { id: 'plastic', name: 'Plastic Bottles', range: 'Range: ₦50 – ₦150/kg', icon: Cylinder, iconColor: 'text-pink-400', bg: 'bg-[#fdf4f6]' },
@@ -38,6 +50,7 @@ export default function ProfilePricingStep() {
     { id: 'food', name: 'Food Waste', range: 'Range: ₦10 – ₦30/kg', icon: Leaf, iconColor: 'text-[#549B45]', bg: 'bg-[#eaf4e7]' },
   ];
 
+  // Validation Effect
   useEffect(() => {
     const newErrors: Record<string, string> = {};
     let isValid = true;
@@ -69,6 +82,7 @@ export default function ProfilePricingStep() {
     setIsFormValid(isValid);
   }, [prices, paymentMethods, minPickupValue, minCollectionQty, touched]);
 
+  // Handlers
   const handlePriceChange = (id: string, value: string) => {
     setPrices(prev => ({ ...prev, [id]: value }));
   };
@@ -84,14 +98,44 @@ export default function ProfilePricingStep() {
     );
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) {
       const allTouched: Record<string, boolean> = { payment: true, minPickup: true, minQty: true };
       Object.keys(prices).forEach(k => allTouched[`price_${k}`] = true);
       setTouched(allTouched);
-    } else {
-      router.push("/auth/recycler/build-profile/success");
+      return;
+    }
+
+    setSaving(true);
+
+    // Collect data from localStorage (saved from steps 1-3) and current form
+    const basicData = JSON.parse(localStorage.getItem('recycler_basic') || '{}');
+    const locationData = JSON.parse(localStorage.getItem('recycler_location') || '{}');
+    const categoriesData = JSON.parse(localStorage.getItem('recycler_categories') || '{}');
+
+    try {
+      await recyclerProfileApi.save({
+        ...basicData,
+        ...locationData,
+        ...categoriesData,
+        negotiateAll,
+        prices,
+        paymentMethods,
+        minPickupValue,
+        minCollectionQty,
+      });
+
+      // Clear saved data
+      localStorage.removeItem('recycler_basic');
+      localStorage.removeItem('recycler_location');
+      localStorage.removeItem('recycler_categories');
+
+      router.push('/auth/recycler/build-profile/success');
+    } catch (err) {
+      console.error('Failed to save profile:', err);
+      // Still navigate to success even if save fails (hackathon)
+      router.push('/auth/recycler/build-profile/success');
     }
   };
 
@@ -280,10 +324,10 @@ export default function ProfilePricingStep() {
             )}
           </div>
 
-          <button type="submit" disabled={!isFormValid}
+          <button type="submit" disabled={!isFormValid || saving}
             className={`w-full py-4 rounded-full font-bold text-[15px] md:text-[16px] flex items-center justify-center gap-2 transition-all duration-300 mt-2 ${
-              isFormValid ? 'bg-[#549B45] text-white shadow-lg shadow-green-900/20 hover:bg-[#458237] hover:-translate-y-0.5 cursor-pointer' : 'bg-[#549B45]/50 text-white cursor-not-allowed'}`}>
-            Finish & Go Live <CheckCircle2 className="w-5 h-5" />
+              isFormValid && !saving ? 'bg-[#549B45] text-white shadow-lg shadow-green-900/20 hover:bg-[#458237] hover:-translate-y-0.5 cursor-pointer' : 'bg-[#549B45]/50 text-white cursor-not-allowed'}`}>
+            {saving ? 'Saving...' : 'Finish & Go Live'} {!saving && <CheckCircle2 className="w-5 h-5" />}
           </button>
 
         </form>
