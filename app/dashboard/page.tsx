@@ -102,13 +102,7 @@ export default function EcoSmartDashboardPage() {
     );
   }
 
-  if (!dashboardData) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#edf3ea] p-10 text-center">
-        <p className="text-lg text-slate-500">No dashboard data available. Start scanning!</p>
-      </div>
-    );
-  }
+  const displayData = dashboardData || { user: { name: getUser()?.name || "User" }, stats: { totalEarnings: 0, itemsScanned: 0 }, recentActivity: [] };
 
   return (
     <main className="min-h-screen bg-[#edf3ea]">
@@ -132,18 +126,18 @@ export default function EcoSmartDashboardPage() {
               <div className="flex-1 overflow-y-auto px-5 pb-6 pt-6 sm:px-6 sm:pt-8 lg:px-8">
                 <div className="space-y-6">
                   <WelcomeSection
-                    name={dashboardData.user.name}
+                    name={displayData.user.name}
                   />
 
                   <div className="grid gap-6 lg:grid-cols-2">
                     <EarningsCard
-                      totalEarnings={dashboardData.stats.totalEarnings}
-                      ecoPoints={dashboardData.stats.itemsScanned}
+                      totalEarnings={displayData.stats.totalEarnings}
+                      ecoPoints={displayData.stats.itemsScanned}
                     />
                     <EcoTipCard />
                   </div>
 
-                  <RecentActivity activities={dashboardData.recentActivity} />
+                  <RecentActivity activities={displayData.recentActivity} />
                 </div>
               </div>
 
