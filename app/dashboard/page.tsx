@@ -37,17 +37,30 @@ export default function EcoSmartDashboardPage() {
   >("home");
   const [isNavSidebarOpen, setIsNavSidebarOpen] = useState(false);
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [token, setToken] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
 
+  // Hydration-safe: wait for client render, then read localStorage + fetch dashboard
   useEffect(() => {
+    if (!hydrated) {
+      setHydrated(true);
+      return;
+    }
     const savedToken = getToken() || "";
-    if (!savedToken) return;
+    if (!savedToken) {
+      setLoading(false);
+      return;
+    }
+    setToken(savedToken);
 
-    const fetchDashboard = async () => {
+    const fetchDashboard = async (t: string) => {
       try {
+        setLoading(true);
         setError("");
 
-        const response = await getDashboardData(savedToken);
+        const response = await getDashboardData(t);
 
         const storedUser = getUser();
 
@@ -69,10 +82,12 @@ export default function EcoSmartDashboardPage() {
       } catch (error: any) {
         console.error("Dashboard error:", error);
         setError(error.message || "Failed to load dashboard");
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchDashboard();
+    fetchDashboard(savedToken);
   }, []);
 
   const handleQuickAction = async (actionId: string) => {
@@ -86,6 +101,53 @@ export default function EcoSmartDashboardPage() {
       console.error("Quick action error:", error);
     }
   };
+
+  const handleMarkPendingAsRecycled = async (_id: string) => {
+    try {
+      const t = getToken();
+      if (!t) return;
+      await markActivityAsRecycled(t, _id);
+      // Re-fetch dashboard data
+      const savedToken = getToken() || "";
+      if (!savedToken) return;
+      const response = await getDashboardData(savedToken);
+      const storedUser = getUser();
+      setDashboardData({
+        user: {
+          name: storedUser?.name || response.user.name,
+        },
+        stats: response.stats,
+        recentActivity: response.recentActivity.map((activity) => ({
+          _id: activity.id,
+          title: activity.item,
+          time: "Just now",
+          amount: activity.amount,
+          status: activity.status === "Recycled" ? "Recycled" : "Pending",
+        })),
+      });
+    } catch (error) {
+      console.error("Mark recycled error:", error);
+    }
+  };
+
+  // Wait for hydration to read token from localStorage
+  if (!hydrated) return null;
+
+  if (!token) {
+    return (
+      <main className="min-h-screen bg-[#edf3ea]">
+        <div className="flex min-h-screen items-center justify-center p-10">
+          <div className="text-center">
+            <p className="text-lg text-slate-500">Please sign in to view your dashboard.</p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  if (loading) {
+    return <div className="flex min-h-screen items-center justify-center bg-[#edf3ea] p-10 text-center text-lg text-slate-500">Loading dashboard...</div>;
+  }
 
   if (error) {
     return (
@@ -102,7 +164,13 @@ export default function EcoSmartDashboardPage() {
     );
   }
 
-  const displayData = dashboardData || { user: { name: getUser()?.name || "User" }, stats: { totalEarnings: 0, itemsScanned: 0 }, recentActivity: [] };
+  if (!dashboardData) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#edf3ea] p-10 text-center">
+        <p className="text-lg text-slate-500">No dashboard data available. Start scanning!</p>
+      </div>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#edf3ea]">
@@ -112,56 +180,48 @@ export default function EcoSmartDashboardPage() {
             <div className="relative flex min-h-205 flex-col overflow-hidden rounded-[28px] sm:min-h-225">
               <DashboardHeader openSidebar={() => setIsNavSidebarOpen(true)} />
 
-              <button
-                type="button"
-                onClick={() => setIsNavSidebarOpen(true)}
-                className="absolute right-5 top-5 z-20 flex h-10 w-10 items-center justify-center rounded-full transition hover:bg-black/5 sm:hidden"
-                aria-label="Open navigation"
-              >
-                <svg className="h-6 w-6 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-                </svg>
-              </button>
+              <div className="flex-1 space-y-4 px-4 pb-4 sm:space-y-5 sm:px-6 sm:pb-5 lg:px-8 lg:pb-8">
+                <WelcomeSection name={dashboardData.user.name} />
 
-              <div className="flex-1 overflow-y-auto px-5 pb-6 pt-6 sm:px-6 sm:pt-8 lg:px-8">
-                <div className="space-y-6">
-                  <WelcomeSection
-                    name={displayData.user.name}
-                  />
+                <ScanCard handleQuickAction={handleQuickAction} />
 
-                  <div className="grid gap-6 lg:grid-cols-2">
-                    <EarningsCard
-                      totalEarnings={displayData.stats.totalEarnings}
-                      ecoPoints={displayData.stats.itemsScanned}
-                    />
-                    <EcoTipCard />
-                  </div>
+                <QuickActions
+                  quickActions={quickActions}
+                  handleQuickAction={handleQuickAction}
+                />
 
-                  <RecentActivity activities={displayData.recentActivity} />
-                </div>
+                <EarningsCard
+                  totalEarnings={dashboardData.stats.totalEarnings}
+                  ecoPoints={dashboardData.stats.itemsScanned}
+                />
+
+                <EcoTipCard />
+
+                <RecentActivity
+                  activities={dashboardData.recentActivity}
+                  setActiveTab={setActiveTab}
+                  markPendingAsRecycled={handleMarkPendingAsRecycled}
+                />
               </div>
 
-              <BottomNav
-                activeTab={activeTab}
-                onTabChange={(tab) => setActiveTab(tab)}
+              {!isNavSidebarOpen && (
+                <BottomNav
+                  navItems={navItems}
+                  activeTab={activeTab}
+                  setActiveTab={setActiveTab}
+                  openProfileSidebar={() => {}}
+                />
+              )}
+
+              <NavigationSidebar
+                isOpen={isNavSidebarOpen}
+                onClose={() => setIsNavSidebarOpen(false)}
+                onNavigate={setActiveTab}
               />
             </div>
           </section>
         </div>
       </div>
-
-      <NavigationSidebar
-        navItems={navItems}
-        quickActions={quickActions}
-        activeTab={activeTab}
-        isOpen={isNavSidebarOpen}
-        onClose={() => setIsNavSidebarOpen(false)}
-        onTabChange={(tab) => {
-          setActiveTab(tab);
-          setIsNavSidebarOpen(false);
-        }}
-        onQuickAction={handleQuickAction}
-      />
     </main>
   );
 }
