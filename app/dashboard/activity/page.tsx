@@ -114,16 +114,6 @@ export default function ActivityPage() {
   ).length;
   const thisWeekCount = activities.length;
 
-  if (!getToken()) {
-    return (
-      <main className="min-h-screen bg-[#edf3ea]">
-        <div className="flex min-h-screen items-center justify-center">
-          <p className="text-slate-500">Please sign in to view activity.</p>
-        </div>
-      </main>
-    );
-  }
-
   return (
     <main className="min-h-screen bg-[#edf3ea]">
       <div className="mx-auto">

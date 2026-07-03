@@ -133,18 +133,6 @@ export default function EcoSmartDashboardPage() {
   // Wait for hydration to read token from localStorage
   if (!hydrated) return null;
 
-  if (!token) {
-    return (
-      <main className="min-h-screen bg-[#edf3ea]">
-        <div className="flex min-h-screen items-center justify-center p-10">
-          <div className="text-center">
-            <p className="text-lg text-slate-500">Please sign in to view your dashboard.</p>
-          </div>
-        </div>
-      </main>
-    );
-  }
-
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center bg-[#edf3ea] p-10 text-center text-lg text-slate-500">Loading dashboard...</div>;
   }

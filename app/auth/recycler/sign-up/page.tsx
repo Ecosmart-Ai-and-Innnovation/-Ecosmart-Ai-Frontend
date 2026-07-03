@@ -76,7 +76,7 @@ export default function RecyclerSignUpPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid) {
-      router.push('/dashboard');
+      router.push('/auth/recycler/sign-in');
     }
   };
 

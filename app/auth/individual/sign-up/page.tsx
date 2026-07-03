@@ -64,7 +64,7 @@ export default function IndividualSignUpPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isFormValid) {
-      router.push('/dashboard');
+      router.push('/auth/individual/sign-in');
     }
   };
 

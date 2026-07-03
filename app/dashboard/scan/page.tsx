@@ -74,11 +74,6 @@ export default function ScannerPage() {
   }, []);
 
   useEffect(() => {
-    if (!getToken()) {
-      router.push("/auth/individual/sign-in");
-      return;
-    }
-
     // Defer camera start so the page renders immediately
     Promise.all([processStoredImage(), processManualText()]).then(([hadImage, hadText]) => {
       if (!hadImage && !hadText) {

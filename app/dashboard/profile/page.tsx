@@ -84,13 +84,8 @@ export default function ProfilePage() {
   }, []);
 
   useEffect(() => {
-    const token = getToken();
-    if (!token) {
-      router.push("/auth/individual/sign-in");
-      return;
-    }
     fetchProfile();
-  }, [fetchProfile, router]);
+  }, [fetchProfile]);
 
   const initials = useMemo(() => {
     if (!user?.name) return "U";
