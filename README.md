@@ -155,3 +155,4 @@ public/
 - **Tailwind CSS** — Utility-first styling
 - **Google Gemini AI** — Integration for waste analysis
 - **TanStack Query** — Server state management
+# Vercel deployment check
