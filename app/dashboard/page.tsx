@@ -39,7 +39,6 @@ export default function EcoSmartDashboardPage() {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [token, setToken] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
 
   // Hydration-safe: wait for client render, then read localStorage + fetch dashboard
@@ -48,8 +47,8 @@ export default function EcoSmartDashboardPage() {
       setHydrated(true);
       return;
     }
-    const savedToken = getToken() || "";
-n    // Check mock data for demo
+
+    // Check mock data for demo (saved from sign-up or sign-in)
     const mockRaw = localStorage.getItem("mock_dashboard");
     if (mockRaw) {
       try {
@@ -60,11 +59,12 @@ n    // Check mock data for demo
         return;
       } catch(e) {}
     }
+
+    const savedToken = getToken() || "";
     if (!savedToken) {
       setLoading(false);
       return;
     }
-    setToken(savedToken);
 
     const fetchDashboard = async (t: string) => {
       try {
@@ -118,7 +118,6 @@ n    // Check mock data for demo
       const t = getToken();
       if (!t) return;
       await markActivityAsRecycled(t, _id);
-      // Re-fetch dashboard data
       const savedToken = getToken() || "";
       if (!savedToken) return;
       const response = await getDashboardData(savedToken);
@@ -141,20 +140,8 @@ n    // Check mock data for demo
     }
   };
 
-  // Wait for hydration to read token from localStorage
+  // Wait for hydration
   if (!hydrated) return null;
-
-  if (!token) {
-    return (
-      <main className="min-h-screen bg-[#edf3ea]">
-        <div className="flex min-h-screen items-center justify-center p-10">
-          <div className="text-center">
-            <p className="text-lg text-slate-500">Please sign in to view your dashboard.</p>
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   if (loading) {
     return <div className="flex min-h-screen items-center justify-center bg-[#edf3ea] p-10 text-center text-lg text-slate-500">Loading dashboard...</div>;
