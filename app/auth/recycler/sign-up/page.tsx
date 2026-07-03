@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Globe, User, Mail, Lock, Eye, EyeOff,
   AlertCircle, Check, CheckCircle2
 } from 'lucide-react';
 
 export default function RecyclerSignUpPage() {
+  const router = useRouter();
   // Form State
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -70,6 +72,13 @@ export default function RecyclerSignUpPage() {
 
     setIsFormValid(nameValid && emailValid && phoneValid && passValid && confirmMatch && agreed);
   }, [name, email, phone, password, confirmPassword, agreed]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isFormValid) {
+      router.push('/dashboard');
+    }
+  };
 
   // Password Strength
   const getStrengthScore = () => {
@@ -159,7 +168,7 @@ export default function RecyclerSignUpPage() {
             </div>
           </div>
 
-          <form className="w-full" onSubmit={(e) => e.preventDefault()}>
+          <form className="w-full" onSubmit={handleSubmit}>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
 

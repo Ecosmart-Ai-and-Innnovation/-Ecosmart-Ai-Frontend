@@ -2,12 +2,14 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
   Globe, User, Mail, Lock, Eye, EyeOff,
   AlertCircle, Check, CheckCircle2
 } from 'lucide-react';
 
 export default function IndividualSignUpPage() {
+  const router = useRouter();
   const isIndividual = true;
 
   // Form State
@@ -58,6 +60,13 @@ export default function IndividualSignUpPage() {
 
     setIsFormValid(nameValid && emailValid && phoneRegex.test(cleanPhone) && passValid && confirmMatch && agreed);
   }, [name, email, phone, password, confirmPassword, agreed]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isFormValid) {
+      router.push('/dashboard');
+    }
+  };
 
   // Determine which error to show (first invalid touched field)
   const getFieldError = () => {
@@ -132,7 +141,7 @@ export default function IndividualSignUpPage() {
             </div>
           </div>
 
-          <form className="w-full" onSubmit={(e) => e.preventDefault()}>
+          <form className="w-full" onSubmit={handleSubmit}>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-8">
 
