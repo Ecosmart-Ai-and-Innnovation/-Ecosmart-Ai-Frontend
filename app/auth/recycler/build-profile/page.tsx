@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Globe, ChevronLeft, Check, Camera, Store, User, Building2,
@@ -32,6 +32,8 @@ export default function BuildProfileStep1() {
   });
 
   const [isFormValid, setIsFormValid] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   // Dynamic Content based on Operation Size
   const getFieldConfig = () => {
@@ -174,15 +176,36 @@ export default function BuildProfileStep1() {
 
           {/* Photo Upload */}
           <div className="flex flex-col items-center justify-center w-full">
-            <button type="button" className="w-24 h-24 md:w-28 md:h-28 rounded-full border-2 border-dashed border-gray-300 flex flex-col items-center justify-center gap-1 hover:border-[#549B45] hover:bg-[#f1f7ef] transition-colors group cursor-pointer">
-              <Camera className="w-6 h-6 md:w-7 md:h-7 text-[#549B45]" />
-              <span className="text-[11px] md:text-[12px] font-medium text-gray-500 group-hover:text-[#549B45]">Add Photo</span>
+            <input
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (ev) => setPhotoPreview(ev.target?.result as string);
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={`w-24 h-24 md:w-28 md:h-28 rounded-full border-2 border-dashed flex flex-col items-center justify-center gap-1 transition-colors group cursor-pointer overflow-hidden ${photoPreview ? "border-[#549B45] bg-[#f1f7ef]" : "border-gray-300 hover:border-[#549B45] hover:bg-[#f1f7ef]"}`}
+            >
+              {photoPreview ? (
+                <img src={photoPreview} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <><Camera className="w-6 h-6 md:w-7 md:h-7 text-[#549B45]" /><span className="text-[11px] md:text-[12px] font-medium text-gray-500 group-hover:text-[#549B45]">Add Photo</span></>
+              )}
             </button>
+            {photoPreview && <button type="button" onClick={() => setPhotoPreview(null)} className="mt-2 text-[11px] md:text-[12px] text-red-500 hover:underline font-medium">Remove photo</button>}
             <p className="text-[12px] md:text-[13px] text-gray-400 mt-4 font-medium text-center">
               Optional — profiles with photos get <span className="font-bold text-gray-500">3×</span> more requests.
             </p>
           </div>
-
           {/* Operation Size Toggle */}
           <div>
             <label className="block text-[15px] md:text-[16px] font-bold text-gray-900 mb-1">
