@@ -1,30 +1,16 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Globe, User, Recycle, ArrowRight } from "lucide-react";
 
 export default function AccountSelection() {
   const router = useRouter();
-  const [selected, setSelected] = useState<"individual" | "recycler" | null>(null);
 
   const handleSelect = (role: "individual" | "recycler") => {
-    setSelected(selected === role ? null : role);
-  };
-
-  const handleGetStarted = () => {
-    if (selected === "individual") {
+    if (role === "individual") {
       router.push("/auth/individual/sign-up");
-    } else if (selected === "recycler") {
+    } else {
       router.push("/auth/recycler/sign-up");
-    }
-  };
-
-  const handleSignIn = () => {
-    if (selected === "individual") {
-      router.push("/auth/individual/sign-in");
-    } else if (selected === "recycler") {
-      router.push("/auth/recycler/sign-in");
     }
   };
 
@@ -102,80 +88,44 @@ export default function AccountSelection() {
           {/* Individual Card */}
           <div
             onClick={() => handleSelect("individual")}
-            className={`rounded-[24px] p-8 md:p-10 relative overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:min-h-[260px] ${
-              selected === "individual"
-                ? "bg-[#449339] shadow-xl"
-                : "bg-white border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]"
-            }`}
+            className="rounded-[24px] p-8 md:p-10 relative overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:min-h-[260px] bg-white border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]"
           >
-            <User className={`absolute -bottom-8 -right-8 w-40 h-40 ${selected === "individual" ? "text-white opacity-[0.07]" : "text-gray-200 opacity-[0.12]"}`} strokeWidth={1} />
-
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-8 relative z-10 ${selected === "individual" ? "bg-white" : "bg-[#f1f7ef]"}`}>
+            <User className="absolute -bottom-8 -right-8 w-40 h-40 text-gray-200 opacity-[0.12]" strokeWidth={1} />
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-8 relative z-10 bg-[#f1f7ef]">
               <User className="w-7 h-7 text-[#449339]" />
             </div>
-
             <div className="relative z-10 flex-grow">
-              <h2 className={`font-bold text-xl md:text-2xl mb-3 ${selected === "individual" ? "text-white" : "text-gray-900"}`}>
-                Individual
-              </h2>
-              <p className={`text-sm md:text-base leading-relaxed max-w-[85%] ${selected === "individual" ? "text-white/90" : "text-gray-500"}`}>
+              <h2 className="font-bold text-xl md:text-2xl mb-3 text-gray-900">Individual</h2>
+              <p className="text-sm md:text-base leading-relaxed max-w-[85%] text-gray-500">
                 Use the platform to identify, book pickups, and earn rewards.
               </p>
             </div>
-
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center mt-8 relative z-10 self-start transition-colors ${selected === "individual" ? "bg-white/95 hover:bg-white" : "bg-gray-50 hover:bg-gray-100"}`}>
-              <ArrowRight className={`w-6 h-6 ${selected === "individual" ? "text-[#449339]" : "text-gray-400"}`} />
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mt-8 relative z-10 self-start transition-colors bg-gray-50 hover:bg-gray-100">
+              <ArrowRight className="w-6 h-6 text-gray-400" />
             </div>
           </div>
 
           {/* Recycler Card */}
           <div
             onClick={() => handleSelect("recycler")}
-            className={`rounded-[24px] p-8 md:p-10 relative overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:min-h-[260px] ${
-              selected === "recycler"
-                ? "bg-[#449339] shadow-xl"
-                : "bg-white border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]"
-            }`}
+            className="rounded-[24px] p-8 md:p-10 relative overflow-hidden flex flex-col cursor-pointer transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl md:min-h-[260px] bg-white border border-gray-100 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)]"
           >
-            <Recycle className={`absolute -bottom-8 -right-8 w-40 h-40 ${selected === "recycler" ? "text-white opacity-[0.07]" : "text-gray-200 opacity-[0.12]"}`} strokeWidth={1} />
-
-            <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-8 transition-colors ${selected === "recycler" ? "bg-white" : "bg-[#f1f7ef]"}`}>
+            <Recycle className="absolute -bottom-8 -right-8 w-40 h-40 text-gray-200 opacity-[0.12]" strokeWidth={1} />
+            <div className="w-14 h-14 rounded-full flex items-center justify-center mb-8 transition-colors bg-[#f1f7ef]">
               <Recycle className="w-7 h-7 text-[#449339]" />
             </div>
-
             <div className="flex-grow">
-              <h2 className={`font-bold text-xl md:text-2xl mb-3 ${selected === "recycler" ? "text-white" : "text-gray-900"}`}>
-                Recycler
-              </h2>
-              <p className={`text-sm md:text-base leading-relaxed max-w-[85%] ${selected === "recycler" ? "text-white/90" : "text-gray-500"}`}>
+              <h2 className="font-bold text-xl md:text-2xl mb-3 text-gray-900">Recycler</h2>
+              <p className="text-sm md:text-base leading-relaxed max-w-[85%] text-gray-500">
                 Manage collections, grow your business, and earn more.
               </p>
             </div>
-
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center mt-8 self-start transition-colors ${selected === "recycler" ? "bg-white/95 hover:bg-white" : "bg-gray-50 hover:bg-gray-100"}`}>
-              <ArrowRight className={`w-6 h-6 ${selected === "recycler" ? "text-[#449339]" : "text-gray-400"}`} />
+            <div className="w-12 h-12 rounded-full flex items-center justify-center mt-8 self-start transition-colors bg-gray-50 hover:bg-gray-100">
+              <ArrowRight className="w-6 h-6 text-gray-400" />
             </div>
           </div>
 
         </div>
-
-        {/* Action Buttons */}
-        {selected && (
-          <div className="mt-10 md:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mx-auto animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <button
-              onClick={handleGetStarted}
-              className="w-full bg-[#549B45] hover:bg-[#458237] text-white px-8 py-4 rounded-full font-semibold text-[15px] md:text-[16px] transition-all shadow-lg shadow-green-900/20 hover:-translate-y-0.5 cursor-pointer"
-            >
-              Get Started
-            </button>
-            <button
-              onClick={handleSignIn}
-              className="w-full bg-white hover:bg-gray-50 text-[#1b5030] border-2 border-[#449339] px-8 py-4 rounded-full font-semibold text-[15px] md:text-[16px] transition-all hover:-translate-y-0.5 cursor-pointer"
-            >
-              Sign In
-            </button>
-          </div>
-        )}
 
       </main>
     </div>
