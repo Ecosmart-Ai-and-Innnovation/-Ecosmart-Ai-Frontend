@@ -322,7 +322,7 @@ export default function BuildProfileStep1() {
         {/* Footer Navigation Tabs */}
         <div className="flex justify-center gap-4 md:gap-8 mt-12 text-[12px] md:text-[14px]">
           <span className="font-bold text-gray-900">Basic Info</span>
-          <span className="text-gray-400 font-medium">Location</span>
+          <Link href="/auth/recycler/build-profile/location" className="font-medium text-gray-400 hover:text-[#549B45]">Location</Link>
           <span className="text-gray-400 font-medium">Categories</span>
           <span className="text-gray-400 font-medium">Pricing</span>
         </div>

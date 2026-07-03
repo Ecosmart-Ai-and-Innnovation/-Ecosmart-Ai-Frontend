@@ -6,8 +6,10 @@ import {
   Clock, Bot, ArrowRight, AlertCircle, X, Leaf
 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export default function ProfileLocationStep() {
+  const router = useRouter();
   // Form State
   const [address, setAddress] = useState('');
   const [city, setCity] = useState('');
@@ -195,7 +197,7 @@ export default function ProfileLocationStep() {
           </p>
         </div>
 
-        <form className="w-full flex flex-col gap-10 md:gap-12 relative" onSubmit={(e) => e.preventDefault()}>
+        <form className="w-full flex flex-col gap-10 md:gap-12 relative" onSubmit={(e) => { e.preventDefault(); if (isFormValid) router.push('/auth/recycler/build-profile'); }}>
 
           {/* --- SECTION 1: YOUR LOCATION --- */}
           <div className="flex flex-col gap-6">
@@ -471,7 +473,7 @@ export default function ProfileLocationStep() {
 
         {/* Footer Navigation Tabs */}
         <div className="flex justify-center gap-4 md:gap-8 mt-12 text-[12px] md:text-[14px]">
-          <Link href="/auth/recycler/build-profile" className="font-bold text-[#549B45]">Basic Info</Link>
+          <Link href="/auth/recycler/build-profile" className="font-semibold text-[#549B45] hover:text-gray-900">Basic Info</Link>
           <span className="font-bold text-gray-900">Location</span>
           <span className="text-gray-400 font-medium">Categories</span>
           <span className="text-gray-400 font-medium">Pricing</span>
