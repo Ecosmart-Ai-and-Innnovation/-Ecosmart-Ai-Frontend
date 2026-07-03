@@ -33,6 +33,36 @@ export default function AccountSelection() {
         </button>
       </header>
 
+      {/* Hero Video */}
+      <div className="relative w-full h-[45vh] md:h-[70vh] lg:h-[80vh] shrink-0">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#d4ebd4] to-[#e3eedc] overflow-hidden">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            disablePictureInPicture
+            preload="auto"
+            className="absolute inset-0 w-full h-full object-cover"
+          >
+            <source src="/hero-animation.mp4" type="video/mp4" />
+          </video>
+        </div>
+
+        {/* SVG Curve */}
+        <div className="absolute -bottom-[2px] left-0 w-full leading-[0] pointer-events-none z-10">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 1200 120"
+            preserveAspectRatio="none"
+            className="w-full h-8 md:h-16 lg:h-20 block"
+            fill="#ffffff"
+          >
+            <path d="M0,120 L1200,120 L1200,0 Q600,140 0,0 Z" />
+          </svg>
+        </div>
+      </div>
+
       {/* Content Area */}
       <main className="flex-grow w-full max-w-7xl mx-auto px-6 md:px-12 lg:px-24 pt-8 md:pt-16 pb-20 flex flex-col items-center justify-center">
 
