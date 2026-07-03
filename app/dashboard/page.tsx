@@ -49,6 +49,17 @@ export default function EcoSmartDashboardPage() {
       return;
     }
     const savedToken = getToken() || "";
+n    // Check mock data for demo
+    const mockRaw = localStorage.getItem("mock_dashboard");
+    if (mockRaw) {
+      try {
+        const mockParsed = JSON.parse(mockRaw);
+        setDashboardData(mockParsed);
+        setLoading(false);
+        localStorage.removeItem("mock_dashboard");
+        return;
+      } catch(e) {}
+    }
     if (!savedToken) {
       setLoading(false);
       return;
