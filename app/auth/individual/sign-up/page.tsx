@@ -73,7 +73,7 @@ export default function IndividualSignUpPage() {
         if (result.user) setUser(result.user);
       }
     } catch {}
-    router.push('/auth/individual/sign-in');
+    router.push('/dashboard');
   };
 
   // Determine which error to show (first invalid touched field)

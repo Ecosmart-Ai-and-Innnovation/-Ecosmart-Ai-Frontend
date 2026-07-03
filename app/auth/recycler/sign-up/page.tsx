@@ -103,7 +103,7 @@ export default function RecyclerSignUpPage() {
         if (result.user) setUser(result.user);
       }
     } catch {}
-    router.push('/auth/recycler/sign-in');
+    router.push('/dashboard');
   };
 
   return (
