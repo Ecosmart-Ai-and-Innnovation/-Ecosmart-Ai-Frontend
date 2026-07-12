@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
-  Menu,
   ArrowLeft,
   Search,
   ChevronDown,
@@ -27,11 +26,7 @@ const wasteOptions = [
   "Battery",
 ];
 
-type typeprops = {
-  openSidebar: () => void;
-};
-
-export default function ManualTypePage({ openSidebar }: typeprops) {
+export default function ManualTypePage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [selectedOption, setSelectedOption] = useState("");
@@ -75,14 +70,6 @@ export default function ManualTypePage({ openSidebar }: typeprops) {
                     className="h-10 w-auto object-contain"
                   />
                 </div>
-
-                <button
-                  onClick={openSidebar}
-                  className="rounded-xl p-2 text-slate-700 transition hover:bg-white"
-                  aria-label="Open navigation"
-                >
-                  <Menu className="h-6 w-6" />
-                </button>
               </header>
 
               <div className="flex-1 px-5 py-6 sm:px-6">

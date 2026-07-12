@@ -149,7 +149,7 @@ function RecyclersContent() {
                 <div className="mt-6 space-y-5">
                   {filteredRecyclers.map((item) => (
                     <article
-                      key={item._id || Math.random().toString()}
+                      key={item._id}
                       className="rounded-3xl bg-white px-5 py-5 shadow-[0_10px_30px_rgba(0,0,0,0.08)]"
                     >
                       <div className="flex items-start justify-between gap-4">

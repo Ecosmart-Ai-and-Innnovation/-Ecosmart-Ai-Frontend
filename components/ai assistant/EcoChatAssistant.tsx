@@ -74,7 +74,6 @@ export default function EcoChatAssistant() {
       });
 
       const text = await res.text();
-      console.log("RAW API RESPONSE:", text);
 
       let data;
       try {

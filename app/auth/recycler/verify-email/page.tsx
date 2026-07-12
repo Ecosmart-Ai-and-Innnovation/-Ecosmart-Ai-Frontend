@@ -5,12 +5,16 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ChevronLeft, Check, Leaf } from 'lucide-react';
 import { otpApi } from '@/lib/api';
+import { setToken, setUser } from '@/lib/auth';
 import { Toast, useToast } from '@/components/ui/Toast';
 
 function EmailVerificationContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get('email') || '';
+  // mode=verify → post-signup email verification (returns a login token).
+  // Otherwise this page is the OTP step of the password-reset flow.
+  const purpose = searchParams.get('mode') === 'verify' ? 'email-verification' : 'password-reset';
   const { toast, showToast, hideToast } = useToast();
 
   // OTP State
@@ -68,15 +72,22 @@ function EmailVerificationContent() {
 
     try {
       const otpCode = otp.join('');
-      const result = await otpApi.verify('email', email, otpCode);
+      const result = await otpApi.verify('email', email, otpCode, purpose);
       if (result.verified) {
         showToast('Verified successfully', 'success');
         // Brief delay to show the toast before navigating
         setTimeout(() => {
-          if (result.resetToken) {
+          if (purpose === 'email-verification') {
+            // Account activated — the backend hands back a login token + user.
+            if (result.token) {
+              setToken(result.token);
+              if (result.user) setUser(result.user);
+            }
+            router.push('/auth/recycler/build-profile');
+          } else if (result.resetToken) {
             router.push(`/auth/recycler/reset-password?token=${result.resetToken}`);
           } else {
-            router.push(`/auth/recycler/reset-password?email=${encodeURIComponent(email)}`);
+            showToast('Could not start password reset. Please try again.', 'error');
           }
         }, 1500);
       }
@@ -96,7 +107,7 @@ function EmailVerificationContent() {
   const handleResend = async () => {
     setTimeLeft(57);
     try {
-      await otpApi.send('email', email);
+      await otpApi.send('email', email, purpose);
     } catch (err) {
       showToast(err instanceof Error ? err.message : 'Failed to resend OTP', 'error');
     }
@@ -118,7 +129,7 @@ function EmailVerificationContent() {
 
       {/* Header - Full Width Spread */}
       <header className="w-full flex justify-between items-center px-6 md:px-12 lg:px-24 pt-8 pb-4">
-        <Link href="/auth/recycler/forgot-password" className="flex items-center gap-1 text-[#1b5030] hover:text-[#549B45] transition-colors font-medium text-[15px] cursor-pointer">
+        <Link href={purpose === 'email-verification' ? '/auth/recycler/sign-up' : '/auth/recycler/forgot-password'} className="flex items-center gap-1 text-[#1b5030] hover:text-[#549B45] transition-colors font-medium text-[15px] cursor-pointer">
           <ChevronLeft className="w-5 h-5" strokeWidth={2.5} />
           <span>Back</span>
         </Link>

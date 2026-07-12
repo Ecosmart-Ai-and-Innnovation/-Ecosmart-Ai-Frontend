@@ -8,7 +8,6 @@ import {
   AlertCircle, Check, CheckCircle2
 } from 'lucide-react';
 import { authApi } from '@/lib/api';
-import { setToken, setUser } from '@/lib/auth';
 
 export default function RecyclerSignUpPage() {
   const router = useRouter();
@@ -26,6 +25,7 @@ export default function RecyclerSignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [phoneTouched, setPhoneTouched] = useState(false);
   const [loading, setLoading] = useState(false); // Added loading state
+  const [serverError, setServerError] = useState('');
 
   // Field Validation States
   const [isNameValid, setIsNameValid] = useState(false);
@@ -99,23 +99,18 @@ export default function RecyclerSignUpPage() {
     if (!isFormValid || loading) return;
     
     setLoading(true);
-    
+    setServerError('');
+
     try {
       // 🛑 STRICT ROLE ASSIGNMENT: Passed 'recycler' to the API
-      // Also ensuring phone is sent securely if required by your API structure
-      const result = await authApi.register(name, email, password, phone.replace(/\D/g, ""), 'recycler');
-      
-      if (result && result.token) {
-        setToken(result.token);
-        if (result.user) setUser(result.user);
-        
-        // ✅ SAFE ROUTING: Only navigate on success
-        router.push('/auth/recycler/build-profile');
-      }
+      await authApi.register(name, email, password, phone.replace(/\D/g, ""), 'recycler');
+
+      // Registration returns NO token — the account is unverified and the backend
+      // has emailed a 6-digit verification code. Verify the email to obtain a login
+      // token; the verify step then routes on to build-profile.
+      router.push(`/auth/recycler/verify-email?email=${encodeURIComponent(email)}&mode=verify`);
     } catch (err) {
-      console.error("Registration error:", err);
-      // Optionally handle specific errors here (like email already in use)
-    } finally {
+      setServerError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
       setLoading(false);
     }
   };
@@ -176,6 +171,14 @@ export default function RecyclerSignUpPage() {
           </div>
 
           <form className="w-full" onSubmit={handleSubmit}>
+
+            {/* Server Error Banner */}
+            {serverError && (
+              <div className="mb-6 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 flex items-center gap-2">
+                <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
+                <p className="text-[13px] md:text-sm text-red-600 font-medium">{serverError}</p>
+              </div>
+            )}
 
             {/* Responsive Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
