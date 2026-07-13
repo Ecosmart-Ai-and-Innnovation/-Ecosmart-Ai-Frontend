@@ -35,6 +35,20 @@ export default function BuildProfileStep1() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
+  // Rehydrate from the saved draft so going back to this step repopulates it.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("recycler_basic") || "{}");
+      if (saved.operationSize) setOperationSize(saved.operationSize);
+      if (saved.businessName) setPrimaryName(saved.businessName);
+      if (saved.description) setDescription(saved.description);
+      if (saved.whatsapp) setWhatsapp(saved.whatsapp);
+      if (saved.photoBase64) setPhotoPreview(saved.photoBase64);
+    } catch {
+      /* ignore malformed draft */
+    }
+  }, []);
+
   // Dynamic Content based on Operation Size
   const getFieldConfig = () => {
     switch (operationSize) {

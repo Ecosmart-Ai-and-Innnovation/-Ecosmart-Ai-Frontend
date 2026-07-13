@@ -5,10 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   Globe, ChevronLeft, Check, AlertCircle, ArrowRight, Bot,
-  Milk, Wine, FileText, Package, Cylinder, Cog, Laptop,
-  Battery, Shirt, Disc, Leaf, TreePine, Home, MapPin, Truck,
-  Briefcase, PartyPopper, AlertTriangle
+  Leaf, Home, MapPin, Truck, Briefcase, PartyPopper, AlertTriangle
 } from 'lucide-react';
+import { RECYCLER_MATERIALS } from '../materials';
 
 export default function ProfileCategoriesStep() {
   const router = useRouter();
@@ -35,21 +34,23 @@ export default function ProfileCategoriesStep() {
   });
   const [isFormValid, setIsFormValid] = useState(false);
 
-  // Data Arrays
-  const materials = [
-    { id: 'Plastic', desc: 'PET, HDPE, LDPE', icon: Milk },
-    { id: 'Glass', desc: 'Bottles & jars', icon: Wine },
-    { id: 'Paper', desc: 'Newspapers, office', icon: FileText },
-    { id: 'Cardboard', desc: 'Boxes & packaging', icon: Package },
-    { id: 'Aluminium', desc: 'Cans & foil', icon: Cylinder },
-    { id: 'Steel', desc: 'Scrap metal', icon: Cog },
-    { id: 'Electronics', desc: 'E-waste', icon: Laptop },
-    { id: 'Batteries', desc: 'All types', icon: Battery },
-    { id: 'Textiles', desc: 'Clothing & fabric', icon: Shirt },
-    { id: 'Rubber', desc: 'Tyres & hoses', icon: Disc },
-    { id: 'Organic Waste', desc: 'Food & garden', icon: Leaf },
-    { id: 'Wood', desc: 'Timbers, woods', icon: TreePine },
-  ];
+  // Rehydrate from the saved draft so going back to this step repopulates it.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("recycler_categories") || "{}");
+      if (Array.isArray(saved.selectedMaterials)) setSelectedMaterials(saved.selectedMaterials);
+      if (Array.isArray(saved.selectedMethods)) setSelectedMethods(saved.selectedMethods);
+      if (typeof saved.sameDayPickup === "boolean") setSameDayPickup(saved.sameDayPickup);
+      if (typeof saved.scheduledBookings === "boolean") setScheduledBookings(saved.scheduledBookings);
+      if (saved.minQuantity) setMinQuantity(saved.minQuantity);
+    } catch {
+      /* ignore malformed draft */
+    }
+  }, []);
+
+  // Materials come from the shared catalog so the exact ids selected here are
+  // what Step 4 prices.
+  const materials = RECYCLER_MATERIALS;
 
   const methods = [
     { id: 'Home Pickup', icon: Home },

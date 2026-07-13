@@ -47,6 +47,23 @@ export default function ProfileLocationStep() {
 
   const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
+  // Rehydrate from the saved draft so going back to this step repopulates it.
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(localStorage.getItem("recycler_location") || "{}");
+      if (saved.address) setAddress(saved.address);
+      if (saved.city) setCity(saved.city);
+      if (saved.state) setState(saved.state);
+      if (Array.isArray(saved.coverageAreas)) setCoverageAreas(saved.coverageAreas);
+      if (Array.isArray(saved.selectedDays)) setSelectedDays(saved.selectedDays);
+      if (saved.openTime) setOpenTime(saved.openTime);
+      if (saved.closeTime) setCloseTime(saved.closeTime);
+      if (typeof saved.availableNow === "boolean") setAvailableNow(saved.availableNow);
+    } catch {
+      /* ignore malformed draft */
+    }
+  }, []);
+
   // Validation Effect
   useEffect(() => {
     const newErrors = { address: '', city: '', state: '', coverage: '', days: '', times: '' };
