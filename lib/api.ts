@@ -162,11 +162,11 @@ export const authApi = {
 
   /** GET /api/auth/me — Get current logged-in user profile */
   getMe: () =>
-    request<{ id: string; name: string; email: string; createdAt: string }>('/auth/me'),
+    request<{ id: string; name: string; email: string; role: string; emailVerified: boolean; createdAt: string }>('/auth/me'),
 
   /** POST /api/auth/forgot-password — Request password reset email */
   forgotPassword: (email: string) =>
-    request<{ resetToken: string }>('/auth/forgot-password', {
+    request<{ email: string }>('/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify({ email }),
     }),

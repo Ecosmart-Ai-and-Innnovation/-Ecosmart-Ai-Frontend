@@ -72,35 +72,15 @@ export default function ScannerPage() {
     return false;
   }, []);
 
-  useEffect(() => {
-    // Defer camera start so the page renders immediately
-    Promise.all([processStoredImage(), processManualText()]).then(([hadImage, hadText]) => {
-      if (!hadImage && !hadText) {
-        setTimeout(() => startCamera(), 100);
-      }
-    });
-
-    return () => stopCamera();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [processStoredImage, processManualText]);
-
-  // Assign stream to video element whenever it becomes available
-  useEffect(() => {
-    if (videoRef.current && streamRef.current && !videoRef.current.srcObject) {
-      videoRef.current.srcObject = streamRef.current;
+  const stopCamera = useCallback(() => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
     }
-  });
+    setCameraReady(false);
+  }, []);
 
-
-  // ── 2. EARLY RETURN AFTER HOOKS ──
-  
-  // Don't render anything until hydrated to match server
-  if (!hydrated) return null;
-
-
-  // ── 3. COMPONENT FUNCTIONS ──
-
-  const startCamera = async () => {
+  const startCamera = useCallback(async () => {
     try {
       setError("");
 
@@ -134,15 +114,34 @@ export default function ScannerPage() {
       console.error("Camera error:", err);
       setError("Camera access denied.");
     }
-  };
+  }, [isTouchDevice]);
 
-  const stopCamera = () => {
-    if (streamRef.current) {
-      streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
+  useEffect(() => {
+    // Defer camera start so the page renders immediately
+    Promise.all([processStoredImage(), processManualText()]).then(([hadImage, hadText]) => {
+      if (!hadImage && !hadText) {
+        setTimeout(() => startCamera(), 100);
+      }
+    });
+
+    return () => stopCamera();
+  }, [processStoredImage, processManualText, startCamera, stopCamera]);
+
+  // Assign stream to video element whenever it becomes available
+  useEffect(() => {
+    if (videoRef.current && streamRef.current && !videoRef.current.srcObject) {
+      videoRef.current.srcObject = streamRef.current;
     }
-    setCameraReady(false);
-  };
+  });
+
+
+  // ── 2. EARLY RETURN AFTER HOOKS ──
+  
+  // Don't render anything until hydrated to match server
+  if (!hydrated) return null;
+
+
+  // ── 3. COMPONENT FUNCTIONS ──
 
   const toggleCamera = async () => {
     stopCamera();
