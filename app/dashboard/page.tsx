@@ -66,7 +66,7 @@ export default function EcoSmartDashboardPage() {
 
         const formattedData: DashboardData = {
           user: {
-            name: storedUser?.name || response.user.name,
+            name: storedUser?.name || response.user.businessName,
           },
           stats: response.stats,
           recentActivity: response.recentActivity.map((activity) => ({
@@ -107,7 +107,7 @@ export default function EcoSmartDashboardPage() {
       const response = await getDashboardData(savedToken);
       const storedUser = getUser();
       setDashboardData({
-        user: { name: storedUser?.name || response.user.name },
+        user: { name: storedUser?.name || response.user.businessName },
         stats: response.stats,
         recentActivity: response.recentActivity.map((activity) => ({
           _id: activity.id,
