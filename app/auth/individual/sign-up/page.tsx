@@ -160,10 +160,10 @@ export default function IndividualSignUpPage() {
           </div>
 
           <form className="w-full" onSubmit={handleSubmit}>
-            {submitError && (
+            {serverError && (
               <div className="mb-6 rounded-2xl bg-red-50 border border-red-200 px-4 py-3 flex items-center gap-2">
                 <AlertCircle className="w-5 h-5 text-red-500 shrink-0" />
-                <p className="text-[13px] md:text-sm text-red-600 font-medium">{submitError}</p>
+                <p className="text-[13px] md:text-sm text-red-600 font-medium">{serverError}</p>
               </div>
             )}
 
