@@ -25,8 +25,8 @@ type DashboardData = {
     name: string;
   };
   stats: {
-    totalEarnings: number;
-    itemsScanned: number;
+    totalKgCollected: number;
+    ecoPoints: number;
   };
   recentActivity: ActivityItem[];
 };
@@ -52,7 +52,7 @@ export default function EcoSmartDashboardPage() {
     if (storedUser?.name) {
       setDashboardData({
         user: { name: storedUser.name },
-        stats: { totalEarnings: 0, itemsScanned: 0 },
+        stats: { totalKgCollected: 0, ecoPoints: 0 },
         recentActivity: [],
       });
     }
@@ -69,7 +69,7 @@ export default function EcoSmartDashboardPage() {
             name: storedUser?.name || response.user.businessName,
           },
           stats: response.stats,
-          recentActivity: response.recentActivity.map((activity) => ({
+          recentActivity: response.activities.map((activity) => ({
             _id: activity.id,
             title: activity.item,
             time: "Just now",
@@ -109,7 +109,7 @@ export default function EcoSmartDashboardPage() {
       setDashboardData({
         user: { name: storedUser?.name || response.user.businessName },
         stats: response.stats,
-        recentActivity: response.recentActivity.map((activity) => ({
+        recentActivity: response.activities.map((activity) => ({
           _id: activity.id,
           title: activity.item,
           time: "Just now",
@@ -126,7 +126,7 @@ export default function EcoSmartDashboardPage() {
 
   const displayData = dashboardData || {
     user: { name: getUser()?.name || "User" },
-    stats: { totalEarnings: 0, itemsScanned: 0 },
+    stats: { totalKgCollected: 0, ecoPoints: 0 },
     recentActivity: [],
   };
 
@@ -142,7 +142,7 @@ export default function EcoSmartDashboardPage() {
                 <WelcomeSection name={displayData.user.name} />
                 <ScanCard handleQuickAction={handleQuickAction} />
                 <QuickActions quickActions={quickActions} handleQuickAction={handleQuickAction} />
-                <EarningsCard totalEarnings={displayData.stats.totalEarnings} ecoPoints={displayData.stats.itemsScanned} />
+                <EarningsCard totalEarnings={displayData.stats.totalKgCollected} ecoPoints={displayData.stats.ecoPoints} />
                 <EcoTipCard />
                 <RecentActivity activities={displayData.recentActivity} setActiveTab={setActiveTab} markPendingAsRecycled={handleMarkPendingAsRecycled} />
               </div>
