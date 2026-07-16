@@ -7,6 +7,7 @@ import {
   CheckCircle2, Clock, Check, X as XIcon, Wallet, Star, Scale,
   TrendingUp, Truck, Settings, HelpCircle, LogOut, Package, Activity
 } from 'lucide-react';
+import { getToken } from '@/lib/auth';
 
 // --- TYPESCRIPT INTERFACES (Preparing for Backend) ---
 export interface RecyclerRequest {
@@ -58,30 +59,54 @@ export interface DashboardData {
   };
 }
 
-// --- MOCK DATA HOOK (For demonstration, replace with actual API call) ---
-const useDashboardData = (): DashboardData => {
-  return {
-    user: { businessName: 'Musa Waste Collection', isOnline: true, dateString: 'Tuesday • July 28' },
-    wallet: { balance: 8500, todayPayments: 1200, weekPurchases: 24800, pendingSettlements: 3400 },
-    stats: { activeListings: 5, avgRating: 4.8, totalKgCollected: 184, ecoPoints: 2340 },
-    requests: [
-      { id: 1, initials: 'AO', name: 'Amaka Obi', material: 'Plastic Bottles', time: '5 min ago', weight: '2.5 kg', distance: '1.2 km', colorClass: 'bg-[#eaf4e7] text-[#449339]' },
-      { id: 2, initials: 'BU', name: 'Bello Usman', material: 'Aluminium Cans', time: '12 min ago', weight: '4.0 kg', distance: '0.8 km', colorClass: 'bg-[#eaf4e7] text-[#449339]' },
-      { id: 3, initials: 'CE', name: 'Chidi Eze', material: 'Paper & Cardboard', time: '28 min ago', weight: '6.2 kg', distance: '2.1 km', colorClass: 'bg-[#eaf4e7] text-[#449339]' }
-    ],
-    activities: [
-      { id: 1, type: 'Plastic Bottles', time: 'Today, 10:22 AM', amount: '₦1,250', status: 'Completed', emoji: '🧴', colorClass: 'bg-pink-50' },
-      { id: 2, type: 'Aluminium Cans', time: 'Yesterday, 2:15 PM', amount: '₦2,400', status: 'Completed', emoji: '🥫', colorClass: 'bg-orange-50' },
-      { id: 3, type: 'Paper & Cardboard', time: 'Mon, Jun 26', amount: '₦680', status: 'Pending', emoji: '📦', colorClass: 'bg-[#fdf8ed]' }
-    ],
-    ecoImpact: { wasteRecycledKg: 240, co2ReducedKg: 18, individualsRewarded: 58, communitiesServed: 12 }
-  };
+// --- API DATA HOOK (Fetches from backend, falls back for endpoints not built) ---
+const useDashboardData = (): DashboardData | null => {
+  const [data, setData] = useState<DashboardData | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const token = getToken();
+        if (!token) return;
+
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL || 'https://ecosmart-ai-backend.onrender.com/api'}/dashboard/recycler`,
+          { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' } }
+        );
+        const json = await res.json();
+        const d = json.data || json;
+
+        setData({
+          user: d.user || { businessName: 'Recycler', isOnline: true, dateString: new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }) },
+          wallet: d.wallet || { balance: 0, todayPayments: 0, weekPurchases: 0, pendingSettlements: 0 },
+          stats: d.stats || { activeListings: 0, avgRating: 0, totalKgCollected: 0, ecoPoints: 0 },
+          requests: d.requests || [],
+          activities: d.activities || [],
+          ecoImpact: d.ecoImpact || { wasteRecycledKg: 0, co2ReducedKg: 0, individualsRewarded: 0, communitiesServed: 0 },
+        });
+      } catch (err) {
+        console.error('Failed to fetch recycler dashboard:', err);
+        setData(null);
+      }
+    })();
+  }, []);
+
+  return data;
 };
 
 export default function RecyclerDashboard() {
   const [activeTab, setActiveTab] = useState('Home');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const data = useDashboardData();
+
+  // Loading state while API fetches
+  if (!data) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50/50">
+        <div className="w-12 h-12 border-4 border-[#eaf4e7] border-t-[#549B45] rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   // Remove a request (accept / decline)
   const removeRequest = (id: string | number) => {
