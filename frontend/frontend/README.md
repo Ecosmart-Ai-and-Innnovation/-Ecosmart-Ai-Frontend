@@ -1,9 +1,19 @@
-# 🌿 EcoSmart AI
-> Sort smart. Earn value. Reduce emissions.
+# EcoSmart AI — Frontend
 
-EcoSmart AI helps urban Nigerians make smarter waste decisions by identifying waste, guiding proper disposal, and connecting users to recyclers — enabling them to earn while reducing pollution and climate impact.
+A modern web application that empowers users to scan, identify, and earn from recyclable waste using AI. Built with **Next.js**, **React**, and **Tailwind CSS**.
 
-A modern web application that empowers users to scan, identify, and earn from recyclable waste using AI. Built with **Next.js 16**, **React 18**, and **Tailwind CSS**.
+---
+
+## Tech Stack
+
+- **Framework:** Next.js 16 (App Router, Turbopack)
+- **UI Library:** React 18
+- **Styling:** Tailwind CSS v4
+- **Language:** TypeScript
+- **Icons:** Lucide React / Heroicons
+- **State Management:** React Query (TanStack)
+- **HTTP Client:** Axios
+- **AI Integration:** Google Gemini API, OpenAI
 
 ---
 
@@ -25,14 +35,15 @@ A modern web application that empowers users to scan, identify, and earn from re
 - **Password Reset** — OTP-based reset via email or SMS
 - **AI Assistant (Mina)** — 24/7 chatbot for waste-related queries
 - **Responsive Design** — Optimized for mobile and desktop
+- **Social Login** — Google and Apple integration
 
 ---
 
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js v18+
-- MongoDB
 - Backend server running (see [Ecosmart-Ai-Backend](https://github.com/Ecosmart-Ai-and-Innnovation/Ecosmart-Ai-Backend))
 
 ### Installation
@@ -144,3 +155,6 @@ public/
 - **Tailwind CSS** — Utility-first styling
 - **Google Gemini AI** — Integration for waste analysis
 - **TanStack Query** — Server state management
+# Vercel deployment check
+
+
