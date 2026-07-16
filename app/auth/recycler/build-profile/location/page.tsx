@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Globe, ChevronLeft, Check, MapPin, Building, ChevronDown,
   Clock, Bot, ArrowRight, AlertCircle, X, Leaf
 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import 'leaflet/dist/leaflet.css';
 
 export default function ProfileLocationStep() {
   const router = useRouter();
@@ -16,6 +17,76 @@ export default function ProfileLocationStep() {
   const [state, setState] = useState('');
   const [coverageInput, setCoverageInput] = useState('');
   const [coverageAreas, setCoverageAreas] = useState<string[]>([]);
+
+  // Map State
+  const [mapLat, setMapLat] = useState(9.0820);
+  const [mapLng, setMapLng] = useState(8.6753);
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<any>(null);
+  const markerRef = useRef<any>(null);
+
+  // Fix Leaflet default marker icon paths for webpack/next.js
+  useEffect(() => {
+    import('leaflet').then((L) => {
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      });
+    });
+  }, []);
+
+  // Initialize map
+  useEffect(() => {
+    if (mapContainerRef.current && !mapInstanceRef.current) {
+      import('leaflet').then((L) => {
+        const map = L.map(mapContainerRef.current!, {
+          center: [mapLat, mapLng],
+          zoom: 6,
+          zoomControl: true,
+        });
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors',
+          maxZoom: 18,
+        }).addTo(map);
+
+        const marker = L.marker([mapLat, mapLng], { draggable: true }).addTo(map);
+        markerRef.current = marker;
+
+        map.on('click', (e: any) => {
+          const { lat, lng } = e.latlng;
+          setMapLat(parseFloat(lat.toFixed(6)));
+          setMapLng(parseFloat(lng.toFixed(6)));
+          marker.setLatLng([lat, lng]);
+        });
+
+        marker.on('dragend', () => {
+          const pos = marker.getLatLng();
+          setMapLat(parseFloat(pos.lat.toFixed(6)));
+          setMapLng(parseFloat(pos.lng.toFixed(6)));
+        });
+
+        mapInstanceRef.current = map;
+      });
+    }
+
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
+  }, []);
+
+  // Update marker position when lat/lng changes externally
+  useEffect(() => {
+    if (markerRef.current && mapInstanceRef.current) {
+      markerRef.current.setLatLng([mapLat, mapLng]);
+      mapInstanceRef.current.setView([mapLat, mapLng], mapInstanceRef.current.getZoom());
+    }
+  }, [mapLat, mapLng]);
 
   // Availability State
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -256,12 +327,32 @@ export default function ProfileLocationStep() {
               )}
             </div>
 
-            {/* Map Placeholder Box */}
-            <div className="relative w-full h-[140px] md:h-[180px] bg-gradient-to-br from-[#e3eedc] to-[#f1f7ef] rounded-[1rem] md:rounded-2xl border border-[#549B45]/20 flex flex-col items-center justify-center cursor-pointer group hover:shadow-md transition-shadow">
-              <MapPin className="w-8 h-8 text-[#549B45] mb-2 group-hover:scale-110 transition-transform duration-300" />
-              <span className="text-[13px] md:text-[14px] font-medium text-[#1b5030]">Tap to pick location on map</span>
-
-              <button type="button" className="absolute bottom-3 right-3 bg-white text-[#1b5030] border border-gray-200 shadow-sm rounded-full px-3 py-1.5 text-[11px] md:text-xs font-bold flex items-center gap-1.5 hover:bg-gray-50 transition-colors">
+            {/* Interactive Map */}
+            <div className="relative w-full h-[200px] md:h-[280px] rounded-[1rem] md:rounded-2xl overflow-hidden border border-gray-200 shadow-sm">
+              <div ref={mapContainerRef} className="w-full h-full z-0" />
+              <div className="absolute bottom-2 left-2 z-[1000] bg-white/90 backdrop-blur-sm rounded-lg px-2.5 py-1 text-[11px] md:text-xs font-medium text-gray-700 shadow-sm flex items-center gap-1.5">
+                <MapPin className="w-3 h-3 text-[#549B45]" />
+                {mapLat.toFixed(4)}, {mapLng.toFixed(4)}
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  if ('geolocation' in navigator) {
+                    navigator.geolocation.getCurrentPosition(
+                      (pos) => {
+                        const lat = parseFloat(pos.coords.latitude.toFixed(6));
+                        const lng = parseFloat(pos.coords.longitude.toFixed(6));
+                        setMapLat(lat);
+                        setMapLng(lng);
+                      },
+                      () => alert('Could not get GPS location. Please click on the map instead.')
+                    );
+                  } else {
+                    alert('GPS not available on this device. Please click on the map instead.');
+                  }
+                }}
+                className="absolute bottom-2 right-2 z-[1000] bg-white text-[#1b5030] border border-gray-200 shadow-sm rounded-full px-3 py-1.5 text-[11px] md:text-xs font-bold flex items-center gap-1.5 hover:bg-gray-50 transition-colors cursor-pointer"
+              >
                 <MapPin className="w-3.5 h-3.5" /> Use GPS
               </button>
             </div>
