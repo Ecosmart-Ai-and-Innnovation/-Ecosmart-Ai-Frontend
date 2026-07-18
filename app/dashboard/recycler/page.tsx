@@ -99,6 +99,16 @@ export default function RecyclerDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const data = useDashboardData();
 
+  // Lock body scroll when sidebar is open on mobile
+  // Must run before the `!data` early return below — hooks can't be conditional //Ese's fix
+  useEffect(() => {
+    if (isSidebarOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+  }, [isSidebarOpen]);
+
   // Loading state while API fetches
   if (!data) {
     return (
@@ -113,15 +123,6 @@ export default function RecyclerDashboard() {
     // In real app, call API here
     console.log('Request action for:', id);
   };
-
-  // Lock body scroll when sidebar is open on mobile
-  useEffect(() => {
-    if (isSidebarOpen) {
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'unset';
-    }
-  }, [isSidebarOpen]);
 
   const navItems = [
     { id: 'Dashboard', icon: Home },
